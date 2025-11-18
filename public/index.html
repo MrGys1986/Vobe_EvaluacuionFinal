@@ -1,0 +1,71 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chess Wiki – Mini consultora</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-bar">
+      <div class="brand">
+        <span class="logo">♟️</span>
+        <div class="brand-text">
+          <h1>Chess Wiki</h1>
+          <p>Mini consultora sobre jugadores de Chess.com</p>
+        </div>
+      </div>
+      <div class="env-badge" id="envBadge">Cargando entorno…</div>
+    </header>
+
+    <main class="layout">
+      <!-- Columna izquierda: buscador + perfil + stats -->
+      <section class="panel">
+        <h2>Buscar jugador</h2>
+        <form id="playerForm" class="player-form">
+          <input
+            type="text"
+            id="usernameInput"
+            placeholder="Ej: hikaru, gothamchess, erik"
+            required
+          />
+          <button type="submit">Consultar</button>
+        </form>
+        <small class="hint"
+          >Usamos datos públicos de <a href="https://www.chess.com" target="_blank">Chess.com</a></small
+        >
+
+        <div id="playerError" class="alert alert-error hidden"></div>
+
+        <div id="playerProfile" class="card hidden"></div>
+        <div id="playerStats" class="card hidden"></div>
+        <div id="playerGames" class="card hidden"></div>
+      </section>
+
+      <!-- Columna derecha: puzzle + leaderboards -->
+      <section class="panel">
+        <div class="card" id="dailyPuzzleCard">
+          <h2>🧩 Puzzle del día</h2>
+          <div id="dailyPuzzleContent" class="card-body small"></div>
+        </div>
+
+        <div class="card" id="leaderboardCard">
+          <h2>🏆 Top jugadores (Blitz & Rapid)</h2>
+          <div id="leaderboardContent" class="card-body small"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Datos proporcionados por la
+        <a href="https://www.chess.com/news/view/published-data-api" target="_blank"
+          >Chess.com Published Data API</a
+        >. Solo lectura, sin movimientos de partida.
+      </p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
