@@ -55,4 +55,4 @@ jobs:
           script: |
             IMAGE=${{ secrets.IMAGE_NAME }}:${{ github.sha }} \
             APP_VERSION=${{ github.sha }} \
-            /root/deploy.sh green
+            bash /root/deploy.sh green
