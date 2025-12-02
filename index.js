@@ -11,6 +11,15 @@ const APP_VERSION = process.env.APP_VERSION || "1.0.0";
 // Middleware para servir archivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ Health endpoint (tu deploy.sh lo necesita)
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    ok: true,
+    color: APP_COLOR,
+    version: APP_VERSION
+  });
+});
+
 // Helper para hacer fetch con manejo de errores
 async function forwardJson(url, res, mapFn) {
   try {
@@ -38,7 +47,7 @@ async function forwardJson(url, res, mapFn) {
   }
 }
 
-// Meta para Blue-Green (la vas a usar después)
+// Meta para Blue-Green
 app.get("/api/meta", (req, res) => {
   res.json({
     appName: "Blue-Green Chess Wiki",
@@ -51,9 +60,7 @@ app.get("/api/meta", (req, res) => {
 // Perfil de jugador
 app.get("/api/player/:username/profile", (req, res) => {
   const { username } = req.params;
-  const url = `https://api.chess.com/pub/player/${encodeURIComponent(
-    username
-  )}`;
+  const url = `https://api.chess.com/pub/player/${encodeURIComponent(username)}`;
   forwardJson(url, res, (data) => ({
     username: data.username,
     name: data.name || null,
@@ -71,21 +78,16 @@ app.get("/api/player/:username/profile", (req, res) => {
 // Stats del jugador
 app.get("/api/player/:username/stats", (req, res) => {
   const { username } = req.params;
-  const url = `https://api.chess.com/pub/player/${encodeURIComponent(
-    username
-  )}/stats`;
+  const url = `https://api.chess.com/pub/player/${encodeURIComponent(username)}/stats`;
   forwardJson(url, res);
 });
 
-// Últimas partidas (tomamos el último archivo de archivos mensuales)
+// Últimas partidas (tomamos el último archivo mensual)
 app.get("/api/player/:username/latest-games", async (req, res) => {
   const { username } = req.params;
-  const archivesUrl = `https://api.chess.com/pub/player/${encodeURIComponent(
-    username
-  )}/games/archives`;
+  const archivesUrl = `https://api.chess.com/pub/player/${encodeURIComponent(username)}/games/archives`;
 
   try {
-    // 1. Obtener lista de archivos mensuales
     const archivesResp = await fetch(archivesUrl, {
       headers: { "User-Agent": "BlueGreenChessWiki/1.0" }
     });
@@ -104,7 +106,6 @@ app.get("/api/player/:username/latest-games", async (req, res) => {
 
     const lastArchiveUrl = archives[archives.length - 1];
 
-    // 2. Obtener partidas de ese archivo
     const gamesResp = await fetch(lastArchiveUrl, {
       headers: { "User-Agent": "BlueGreenChessWiki/1.0" }
     });
@@ -118,7 +119,6 @@ app.get("/api/player/:username/latest-games", async (req, res) => {
     const gamesJson = await gamesResp.json();
     const games = gamesJson.games || [];
 
-    // Nos quedamos con las últimas 5
     const latest = games.slice(-5).reverse().map((g) => ({
       url: g.url,
       end_time: g.end_time,
@@ -164,14 +164,19 @@ app.get("/api/puzzle/random", (req, res) => {
   forwardJson(url, res);
 });
 
-// Catch-all para SPA simple (si quieres luego puedes hacer rutas)
+// Catch-all para SPA simple
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Arrancar servidor
-app.listen(PORT, () => {
-  console.log(
-    `Servidor escuchando en http://localhost:${PORT} (${APP_COLOR} v${APP_VERSION})`
-  );
-});
+// ✅ Para Supertest: exporta app
+module.exports = app;
+
+// ✅ Solo escucha si se ejecuta directamente: `node index.js`
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(
+      `Servidor escuchando en http://localhost:${PORT} (${APP_COLOR} v${APP_VERSION})`
+    );
+  });
+}

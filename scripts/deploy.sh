@@ -22,19 +22,20 @@ CONTAINER_NAME="chesswiki_${COLOR}"
 echo "=== Desplegando entorno ${COLOR} ==="
 echo "Imagen: ${IMAGE}"
 echo "Contenedor: ${CONTAINER_NAME}"
-echo "Puerto host: ${PORT} -> contenedor: 3000"
+echo "Puerto host: 127.0.0.1:${PORT} -> contenedor: 3000 (NO público)"
 
 docker pull "${IMAGE}"
 docker rm -f "${CONTAINER_NAME}" 2>/dev/null || true
 
+# 👉 CLAVE: bind a localhost para que NO exista http://IP:8081 en internet
 docker run -d \
   --name "${CONTAINER_NAME}" \
-  -p "${PORT}:3000" \
+  -p "127.0.0.1:${PORT}:3000" \
   -e APP_COLOR="${COLOR}" \
   -e APP_VERSION="${APP_VERSION:-manual}" \
   "${IMAGE}"
 
-echo "Esperando /health en ${PORT}..."
+echo "Esperando /health en 127.0.0.1:${PORT}..."
 
 ATTEMPTS=10
 SLEEP_SECONDS=3
@@ -55,9 +56,16 @@ for i in $(seq 1 "${ATTEMPTS}"); do
 done
 
 NGINX_CONF_DIR="/etc/nginx/conf.d"
+
+if [[ ! -f "${NGINX_CONF_DIR}/app_${COLOR}.conf" ]]; then
+  echo "ERROR: No existe ${NGINX_CONF_DIR}/app_${COLOR}.conf"
+  exit 1
+fi
+
+# Activa el color (blue/green) SIN cambiar URL ni puerto para el usuario
 ln -sfn "${NGINX_CONF_DIR}/app_${COLOR}.conf" "${NGINX_CONF_DIR}/app_active.conf"
 
 nginx -t
 systemctl reload nginx
 
-echo "OK: entorno ${COLOR} activo y sirviendo tráfico."
+echo "OK: entorno ${COLOR} activo y sirviendo tráfico vía Nginx."

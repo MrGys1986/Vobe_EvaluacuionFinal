@@ -31,8 +31,6 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # OJO: si no tienes tests, esto tronará.
-      # Si aún no agregas tests, cambia a: run: echo "No tests yet"
       - name: Run tests
         run: npm test
 
