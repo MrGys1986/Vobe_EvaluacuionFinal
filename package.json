@@ -6,11 +6,20 @@
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development node index.js",
-    "test": "node -e \"require('http').createServer().close(); console.log('Tests OK')\""
+    "test": "jest --runInBand"
+    
   },
+  "jest": {
+  "testEnvironment": "node",
+  "setupFiles": ["./tests/setup.js"]
+},
   "author": "Gustavo",
   "license": "MIT",
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   }
 }
