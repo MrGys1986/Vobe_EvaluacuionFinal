@@ -61,9 +61,9 @@ jobs:
       - name: Deploy to droplet (Blue/Green)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USER }}
-          password: ${{ secrets.DO_PASSWORD }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
 
@@ -100,6 +100,8 @@ jobs:
             echo "Desplegando a: $TARGET"
             echo "Imagen: $IMAGE"
 
-            IMAGE="$IMAGE" APP_VERSION="$APP_VERSION" bash /root/deploy.sh "$TARGET"
+            # Ejecutar tu script en el servidor
+            IMAGE="$IMAGE" APP_VERSION="$APP_VERSION" \
+            bash /opt/vobe/Vobe_EvaluacuionFinal/scripts/deploy.sh "$TARGET"
 
             echo "Listo. Producción ahora apunta a: $TARGET"
